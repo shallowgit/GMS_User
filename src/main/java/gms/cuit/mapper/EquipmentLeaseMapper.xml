@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="gms.cuit.mapper.EquipmentLeaseMapper">
+    <!--&lt;!&ndash;添加器材租借&ndash;&gt;
+    <insert id="addEquipmentLease" parameterType="gms.cuit.entity.Gms_Equipment_Lease">
+        insert into gms_lease values (#{lease_Id}, #{lease_User.user_Id}, #{lease_Equipment.equipment_Id}
+        , #{lease_Count}, #{lease_BorrowTime}, #{lease_ReturnTime}, #{lease_State})
+    </insert>
+
+    &lt;!&ndash;删除器材租借&ndash;&gt;
+    <delete id="deleteEquipmentLease" parameterType="java.lang.String">
+        update gms_lease set lease_state = 1 where lease_id = #{lease_Id};
+    </delete>
+
+    &lt;!&ndash;设置器材租借所有信息&ndash;&gt;
+    <update id="updateEquipmentLease" parameterType="gms.cuit.entity.Gms_Equipment_Lease">
+        update gms_lease set lease_count=#{lease_Count},lease_borrowTime=#{lease_BorrowTime},
+            lease_returnTime=#{lease_ReturnTime},lease_state=#{lease_State} where lease_id=#{lease_Id};
+    </update>
+
+    &lt;!&ndash;设置器材租借借用信息&ndash;&gt;
+    <update id="updateReturn" parameterType="gms.cuit.entity.Gms_Equipment_Lease">
+        update gms_lease set lease_returnTime=#{lease_ReturnTime},lease_state=#{lease_State} where lease_id=#{lease_Id};
+    </update>
+
+    &lt;!&ndash; 多对一映射&ndash;&gt;
+    <resultMap id="equipmentLeaseResult" type="gms.cuit.entity.Gms_Equipment_Lease">
+        <id property="lease_Id" column="lease_id"/>
+        <result property="lease_BorrowTime" column="lease_borrowTime"/>
+        <result property="lease_ReturnTime" column="lease_returnTime"/>
+        <result property="lease_Count" column="lease_count"/>
+        <result property="lease_State" column="lease_state"/>
+&lt;!&ndash;        <association property="gms_User" javaType="gms.cuit.entity.Gms_User">
+            <id column="user_id" property="user_Id"/>
+            <result column="user_sex" property="user_Sex"/>
+        </association>
+        <association property="gms_Equipment" javaType="gms.cuit.entity.Gms_Equipment">
+            <id column="equipment_id" property="equipment_Id"/>
+            <result column="equipment_name" property="equipment_Name"/>
+        </association>&ndash;&gt;
+        <result property="user_Id" column="lease_user_id"/>
+        <result property="equipment_Id" column="lease_equipment_id"/>
+        <association property="gms_User" column="student_id" javaType="gms.cuit.entity.Gms_User" resultMap="userResult"/>
+        <association property="gms_Equipment" column="equipment_id" javaType="gms.cuit.entity.Gms_Equipment" resultMap="equipmentResult"/>
+    </resultMap>
+
+    <resultMap id="userResult" type="gms.cuit.entity.Gms_User">
+        <id property="user_Id" column="user_id"/>
+        <result property="user_Sex" column="user_sex"/>
+    </resultMap>
+
+    <resultMap id="equipmentResult" type="gms.cuit.entity.Gms_Equipment">
+        <id property="equipment_Id" column="equipment_id"/>
+        <result property="equipment_Name" column="equipment_name"/>
+    </resultMap>
+
+    &lt;!&ndash;获取所有器材租借&ndash;&gt;
+    <select id="getAllEquipmentLeases" resultMap="equipmentLeaseResult">
+        select l.*, u.user_id, u.user_sex, e.equipment_id, e.equipment_name
+        from gms_lease l, gms_user u, gms_equipment e
+        where l.lease_user_id = u.user_id and l.lease_equipment_id = e.equipment_id
+        order by (e.equipment_name + 0) asc
+    </select>
+
+    &lt;!&ndash;获取器材租借信息&ndash;&gt;
+    <select id="getEquipmentLease" resultMap="equipmentLeaseResult">
+        select l.*, u.user_id, u.user_sex, e.equipment_id, e.equipment_name
+        from gms_lease l, gms_user u, gms_equipment e
+        where l.lease_user_id = u.user_id and l.lease_equipment_id = e.equipment_id
+        and gms_lease.lease_id = #{lease_Id}
+    </select>
+
+    &lt;!&ndash;获取器材租借信息&ndash;&gt;
+    <select id="getEquipmentLeaseByEquipmentNameOrUserId" resultMap="equipmentLeaseResult">
+        select l.*, u.user_id, u.user_sex, e.equipment_id, e.equipment_name
+        from gms_lease l, gms_user u, gms_equipment e
+        where l.lease_user_id = u.user_id and l.lease_equipment_id = e.equipment_id
+        <if test='equipmentName!=""'>
+            and gms_equipment.equipment_name like "%"#{equipmentName}"%"
+        </if>
+        <if test='userId!=""'>
+            and gms_user.user_id = #{userId}
+        </if>
+    </select>-->
+
+    <!--获取包含指定关键字的某页订单-->
+    <resultMap id="Gms_Equipment_LeaseResultMap" type="gms.cuit.entity.Gms_Equipment_Lease">
+        <id column="lease_id" property="lease_Id"></id>
+        <result column="lease_count" property="lease_Count"></result>
+        <result column="lease_state" property="lease_State"></result>
+        <result column="lease_borrowTime" property="lease_BorrowTime"></result>
+        <result column="lease_returnTime" property="lease_ReturnTime"></result>
+        <association property="gms_Equipment" javaType="gms.cuit.entity.Gms_Equipment">
+            <id column="equipment_id" property="equipment_Id"></id>
+            <result column="equipment_name" property="equipment_Name"></result>
+            <result column="equipment_count" property="equipment_Count"></result>
+            <result column="equipment_lend" property="equipment_Lend"></result>
+            <result column="equipment_is_del" property="equipment_IsDel"></result>
+        </association>
+    </resultMap>
+    <select id="findProductByPage" resultMap="Gms_Equipment_LeaseResultMap">
+        select * from gms_lease i,gms_equipment p
+        where i.lease_equipment_id= p.equipment_id
+        and i.lease_user_id=#{user_Id}
+        and (p.equipment_name LIKE binary "%" #{query_key} "%")
+        order by i.lease_state
+        limit #{index},#{currentCount}
+    </select>
+
+    <!--通过id修改订单状态-->
+    <update id="delLeaseById" >
+        update gms_lease
+        set lease_state=1,lease_borrowTime=lease_borrowTime,lease_returnTime=lease_returnTime
+        where lease_id=#{id}
+    </update>
+
+    <!--插入订单-->
+    <insert id="addLease" parameterType="gms.cuit.entity.Gms_Equipment_Lease" >
+        insert into gms_lease values(#{lease_Id},#{gms_Equipment.equipment_Id},#{gms_User.user_Id},#{lease_Count},#{lease_State},#{lease_BorrowTime},#{lease_ReturnTime})
+    </insert>
+
+    <select id="getCount" resultType="java.lang.Integer">
+        select COALESCE(count(*),0)
+        from gms_lease i,gms_equipment p
+        where i.lease_user_id=#{user_Id}
+            and i.lease_equipment_id= p.equipment_id
+            and (p.equipment_name LIKE binary "%" #{query_key} "%")
+    </select>
+</mapper>

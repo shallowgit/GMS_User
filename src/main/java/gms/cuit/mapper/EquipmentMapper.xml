@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="gms.cuit.mapper.EquipmentMapper">
+    <!--添加器材-->
+    <insert id="addEquipment" parameterType="gms.cuit.entity.Gms_Equipment">
+        insert into gms_equipment VALUES (#{equipment_Id}, #{equipment_Name}, #{equipment_Count}, #{equipment_Lend})
+    </insert>
+
+    <!--删除器材-->
+    <delete id="deleteEquipment" parameterType="java.lang.String">
+        update gms_equipment set equipment_is_del = 1 where equipment_id = #{equipment_Id};
+    </delete>
+
+    <!--设置器材所有信息-->
+    <update id="updateEquipment" parameterType="gms.cuit.entity.Gms_Equipment">
+         update gms_equipment set equipment_name=#{equipment_Name},equipment_count=#{equipment_Count},
+            equipment_lend=#{equipment_Lend} where equipment_id=#{equipment_Id};
+    </update>
+
+    <!--设置器材借出数量-->
+    <update id="updateEquipmentLend" parameterType="gms.cuit.entity.Gms_Equipment">
+        update gms_equipment set equipment_lend=#{equipment_Lend} where equipment_id=#{equipment_Id};
+    </update>
+
+    <!--获取所有器材-->
+<!--    <resultMap id="selectEquipments" type="gms.cuit.entity.Gms_Equipment"/>
+    <select id="getAllEquipments" resultMap="selectEquipments">
+        select * from gms_equipment where equipment_is_del = 0 order by (equipment_id + 0) asc
+    </select>-->
+
+    <!--获取器材信息-->
+    <select id="findAllEquipments" resultType="gms.cuit.entity.Gms_Equipment">
+        select * from gms_equipment i
+        where i.equipment_is_del &lt;&gt; 1 and i.equipment_count - i.equipment_lend &lt;&gt; 0 and i.equipment_name LIKE binary "%" #{query_key} "%"
+        limit #{index},#{currentCount}
+    </select>
+
+    <!--通过器材名模糊获取器材信息-->
+    <select id="findProductByPage" resultType="gms.cuit.entity.Gms_Equipment">
+        select * from gms_equipment i
+        where i.equipment_is_del &lt;&gt; 1 and i.equipment_name LIKE binary "%" #{query_key} "%"
+        limit #{index},#{currentCount}
+    </select>
+
+    <!--获取器材数量-->
+    <select id="getCount" resultType="java.lang.Integer">
+        select COALESCE(count(*),0)
+        from gms_equipment i
+        where i.equipment_name LIKE binary "%" #{query_key} "%"
+    </select>
+
+    <update id="returnEquipment">
+        update gms_equipment set equipment_lend=equipment_lend-#{count} where equipment_id=#{equipment_Id};
+    </update>
+
+    <update id="lendEquipment">
+        update gms_equipment set equipment_lend=equipment_lend+#{count} where equipment_id=#{equipment_Id};
+    </update>
+
+    <!--根据器材id获取器材信息-->
+    <select id="findEquipmentById" resultType="gms.cuit.entity.Gms_Equipment">
+        select * from gms_equipment where equipment_id = #{id}
+    </select>
+</mapper>

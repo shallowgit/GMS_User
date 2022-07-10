@@ -1,0 +1,117 @@
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>体育馆管理系统通知中心</title>
+<link href="../css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../css/SMS-index.css" />
+<link rel="stylesheet" href="../css/notice.css" />
+</head>
+<body>
+	<!--引入头部-->
+	<div id="notice_vue">
+		<div class="header">
+			<div class="real_header">
+				<a href="#" style="text-decoration: none; color: #337ab7;"> <img
+					src="../img/logo.png" class="head_img"> <span class="head_span1">体育馆管理系统</span>
+				</a>
+				<div class="login">
+					<a  v-on:click="toIndex" style="margin-left: -88px;">首页</a>
+				</div>
+			</div>
+			<div class="top_line"></div>
+			<div class="message">
+				<p style="width: 1000px; margin: 0 auto; height: 30px; line-height: 30px;"></p>
+			</div>
+		</div>
+
+		<!-- 通知消息 -->
+		<div class="container">
+			<div class="row">
+				<div class="top-notice">
+				</div>
+			</div>
+			<div class=" n_top">
+				<h4 class="text-center">体育馆通知公告</h4>
+				<div class="text-center">
+					<span>作者：{{notice_Man}}</span>&nbsp;&nbsp;&nbsp;&nbsp; <span>时间：{{notice_Time }}</span>
+				</div>
+				<div class="">
+					<p class="text-center">
+					<h3 class="text-center">通&nbsp;&nbsp;知</h3>
+					<br>
+					</p>
+					<p class="n_cont">
+						{{notice_Content}}
+					</p>
+					<br> <br>
+					<p class="text-right" style="font-size: 16px;">
+						<span style="font-size: 18px;"> 体育馆管理中心 </span> <br> <br>
+						{{notice_Time}} <br>
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 引入页尾 -->
+	<div class="container-fluid f_top footer" style="margin-top: 60px;">
+		<div class="row">
+			<!--<div style="border:solid ;color: #EC971F"></div>-->
+			<div class="footer" style="position: relative;">
+				版权所有©GMS-体育馆管理系统 &nbsp;&nbsp;&nbsp;
+			</div>
+		</div>
+	</div>
+</body>
+
+<script src="../js/jquery-3.4.1.min.js"></script>
+<script src="../js/bootstrap.min.js"></script>
+<script src="../js/vue.js"></script>
+<script>
+	let notice_vue
+	$(function () {
+		var str = GetRequest();//获取首页传递过来的url”？“后面的参数   "userId":"546115"
+		$.ajax({
+			type: "POST",
+			url: "/user/getNotice",
+			dataType: "json",
+			data: JSON.stringify(str),
+			contentType: "application/json",
+			//async. 默认是 true，即为异步方式，$.ajax执行后，会继续执行ajax后面的脚本，直到服务器端返回数据后，触发$.ajax里的success方法，这时候执行的是两个线程。
+			//async 设置为 false，则所有的请求均为同步请求，在没有返回值之前，同步请求将锁住浏览器，用户其它操作必须等待请求完成才可以执行。
+			async: false,
+			success: function (data) {
+				notice_vue = new Vue({
+					el:'#notice_vue',
+					data:{
+						notice_Man:data.notice_Man,
+						notice_Time:data.notice_Time,
+						notice_Content:data.notice_Content,
+						notice_Title:data.notice_Title
+					},
+					methods:{
+						toIndex:function () {
+							window.location.href="/user/index";
+						}
+					}
+				});
+			}
+		});
+	});
+	function GetRequest() {
+		//search 属性是一个可读可写的字符串，可设置或返回当前 URL 的查询部分（问号 ? 之后的部分）
+		var url = location.search; //获取url中"?"符后的字串
+		var theRequest = new Object();
+		if (url.indexOf("?") != -1) { //如果要检索的字符串值没有出现，则该方法返回 -1
+			var str = url.substr(1);//在字符串中抽取从 start 下标开始的后面所有字符
+			strs = str.split("&");
+			for(var i = 0; i < strs.length; i ++) {
+				theRequest[strs[i].split("=")[0]]=unescape(strs[i].split("=")[1]); //unescape() 函数可对通过 escape() 编码的字符串进行解码
+			}
+		}
+		return theRequest;
+	}
+</script>
+</html>
